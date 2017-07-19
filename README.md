@@ -6,8 +6,8 @@ Import application.
 How to install this project
 ---------------------------
 
-  1. `git clone https://antradienio@bitbucket.org/antradienio/imported.git`
-  1. `cd imported`
+  1. `git clone https://github.com/githabas/importuoti.git`
+  1. `cd importuoti`
   1. `composer install`
   1. `php bin/console doctrine:database:create`
   1. `php bin/console doctrine:schema:create`
