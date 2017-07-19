@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block main %}
+<div class="row">
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-6">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Importuoti</h3>
+            </div>
+            {% form_theme form 'form/bootstrap_3_layout.html.twig' %}
+            {{ form_start(form) }}
+            <div class="box-body">
+                {{ form_widget(form) }}
+            </div>
+
+            <div class="box-footer">
+                {{ form_end(form) }}
+            </div>
+
+        </div>
+    </div>
+    <div class="col-md-3">
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-6">
+        <div class="box-body table-responsive no-padding">
+            {% if imported is not empty %}
+                <table class="table table-hover items-list">
+                    <tbody>
+                    {% if header is not empty %}
+                        <tr>
+                            {% for item in header %}
+                                <th>{{ item }}</th>
+                            {% endfor %}
+                            <th>Veiksmai</th>
+                        </tr>
+                    {% endif %}
+                    {% for item in imported %}
+                        <tr class="clickable pointer" data-id="{{ item.id }}" data-href="#">
+                            <td>{{ item.fieldOne }}</td>
+                            <td>{{ item.fieldTwo }}</td>
+                            <td>{{ item.fieldThree }}</td>
+                            <td>{{ item.fieldFour }}</td>
+                            <td data-label="Actions" class="actions">
+                                <a class="text-danger action-delete" href="#"><i class="fa fa-trash fa-lg"></i> </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <table class="table table-hover">
+                    <tr class="clickable pointer">
+                        <!--                                <td> No items </td> -->
+                    </tr>
+                </table>
+            {% endif %}
+        </div>
+        <div class="admin-navigation">
+            {{ knp_pagination_render(imported) }}
+        </div>
+    </div>
+    <div class="col-md-3">
+    </div>
+</div>
+    <form name="delete_form" method="post" action="{{ path('imported_delete') }}" id="delete-form" style="display: none"><div id="delete_form" id="delete-form" style="display: none"><div><button type="submit" id="delete_form_submit" name="delete_form[submit]">Delete</button></div><input type="hidden" id="delete_form_id" name="id" value="0" /></div></form>
+    <div id="modal-delete" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4>Ar tikrai norite ištrinti pasirinktą įrašą?</h4>
+                    <p>Šio veiksmo nebus įmanoma atšaukti.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" class="btn">
+                        Atšaukti
+                    </button>
+
+                    <button type="button" data-dismiss="modal" class="btn btn-danger" id="modal-delete-button">
+                        <i class="fa fa-trash"></i> Ištrinti
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock main %}
+
+{% block body_javascripts %}
+    <script>
+        $(document).ready(function(){
+            $('.table tr').click(function(e){
+                var column = $(e.target).get(0).cellIndex;
+                var importedId = $(this).data("id");
+                if (column === undefined || column > 3 || !importedId) {
+                    return;
+                }
+                var cell = $(e.target);
+                var cellText = cell.text();
+
+                cell.html('<input type="text" class="form-control" value="'+cell.text()+'" id="id'+importedId+'">');
+
+                $("#id"+importedId).focus();
+
+                $("#id"+importedId).focusout(function(e) {
+                    cell.text(cellText);
+                    $(this).remove();
+                });
+
+                $("#id"+importedId).on('keyup', function (e) {
+                    if (e.keyCode == 13) {
+                        // Do something
+                        var text = $(this).val();
+                        var actionRequest = $.ajax({
+                            type: "GET",
+                            url: '{{ path('imported_update') }}',
+                            data: {
+                                'text' : text,
+                                'column' : column,
+                                'importedId' : importedId
+                            }
+                        });
+                        actionRequest.done(function(result) {
+                            if (result.data.status === 'success') {
+                                cell.text(text);
+                                $(this).remove();
+
+                            } else {
+                                console.log(result);
+                            }
+                        });
+                    } else if(e.keyCode == 27) {
+                        cell.text(cellText);
+                        $(this).remove();
+                    }
+                });
+            });
+
+            $('.action-delete').on('click', function(e) {
+                e.preventDefault();
+                var id = $(this).parents('tr').first().data('id');
+                $('#delete_form_id').val(id);
+                $('#modal-delete').modal({ backdrop: true, keyboard: true })
+                        .off('click', '#modal-delete-button')
+                        .on('click', '#modal-delete-button', function () {
+                            var deleteForm = $('#delete-form');
+                            deleteForm.trigger('submit');
+                        });
+            });
+
+        });
+    </script>
+{% endblock %}

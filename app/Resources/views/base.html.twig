@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}Importavimas{% endblock %}</title>
+        {% block head_stylesheets %}
+            <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+            <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('css/font-awesome.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('css/fileinput.min.css') }}">
+        {% endblock %}
+    </head>
+    <body>
+    {% block head_javascripts %}
+        <script src="{{ asset('js/jquery-2.2.3.min.js') }}"></script>
+        <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+        <script src="{{ asset('js/fileinput.min.js') }}"></script>
+    {% endblock %}
+    {% block body %}
+        <div class="content-wrapper" style="overflow: auto">
+            {% block content %}
+                {% if app.request.hasPreviousSession %}
+                    {% block fos_flash_content %}
+                        {% for type, messages in app.session.flashbag.all() %}
+                            {% for message in messages %}
+                                {% set fa_icon = 'check' %}
+                                {%if type == 'error'%}
+                                    {% set type = 'danger' %}
+                                    {% set fa_icon = 'ban' %}
+                                {%endif%}
+                                <div class="alert alert-{{ type }}">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                    <h4><i class="icon fa fa-{{ fa_icon }}"></i></h4>
+                                    {{ message|raw }}
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endblock fos_flash_content %}
+                {% endif %}
+                {% block flash_messages %}
+                {% endblock flash_messages %}
+
+                <!-- Content Header (Page header) -->
+                {% block content_header %}
+                    <section class="content-header">
+                        <h1 class="title">{% block content_title %}{% endblock %}</h1>
+                    </section>
+                {% endblock content_header %}
+
+                <!-- Main content -->
+                <section id="main" class="container">
+                    {% block main %}{% endblock %}
+                </section>
+            {% endblock content %}
+        </div>
+    {% endblock %}
+    {% block body_javascripts %}
+    {% endblock %}
+    </body>
+</html>
