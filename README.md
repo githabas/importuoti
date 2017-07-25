@@ -1,7 +1,14 @@
 What's inside?
 --------------
 
-Import application.
+Imports .csv file in db. 
+Displays imported records in a table and alows inline editing.
+
+.csv file example:
+ 
+ John|Peter|Saulius|Aušra<br>
+ asqwpo|nunio][]|6521|.,m<br>
+ o||21|.,m
 
 How to install this project
 ---------------------------
